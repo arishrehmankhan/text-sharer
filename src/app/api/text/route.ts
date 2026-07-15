@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { nanoid } from "nanoid";
 import { getStore } from "@/lib/store";
 
 const store = getStore();
@@ -15,24 +14,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "text too long" }, { status: 400 });
   }
 
-  const id = nanoid(8);
-  await store.set(id, text);
-
-  return NextResponse.json({ id });
+  await store.set(text);
+  return NextResponse.json({ ok: true });
 }
 
-export async function GET(req: NextRequest) {
-  const id = req.nextUrl.searchParams.get("id");
-
-  if (!id) {
-    return NextResponse.json({ error: "id is required" }, { status: 400 });
-  }
-
-  const text = await store.get(id);
-
+export async function GET() {
+  const text = await store.get();
   if (!text) {
-    return NextResponse.json({ error: "not found" }, { status: 404 });
+    return NextResponse.json({ text: "" });
   }
-
   return NextResponse.json({ text });
 }

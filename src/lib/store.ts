@@ -1,29 +1,31 @@
+const KEY = "shared";
+
 export interface Store {
-  get(id: string): Promise<string | null>;
-  set(id: string, text: string): Promise<void>;
+  get(): Promise<string | null>;
+  set(text: string): Promise<void>;
 }
 
 function createMemoryStore(): Store {
-  const map = new Map<string, string>();
+  let value: string | null = null;
   return {
-    async get(id: string) {
-      return map.get(id) ?? null;
+    async get() {
+      return value;
     },
-    async set(id: string, text: string) {
-      map.set(id, text);
+    async set(text: string) {
+      value = text;
     },
   };
 }
 
 function createKvStore(): Store {
   return {
-    async get(id: string) {
+    async get() {
       const { kv } = await import("@vercel/kv");
-      return kv.get<string>(id);
+      return kv.get<string>(KEY);
     },
-    async set(id: string, text: string) {
+    async set(text: string) {
       const { kv } = await import("@vercel/kv");
-      await kv.set(id, text);
+      await kv.set(KEY, text);
     },
   };
 }
